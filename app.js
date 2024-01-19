@@ -5,7 +5,7 @@ const port = 5001
 const mongoose = require('mongoose');
 const cors = require('cors');
 const Student = require('./models');
-const cookie = require('cookie-session');
+const session = require('express-session')
 
 
 mongoose.connect("mongodb+srv://root:akki909@cluster0.sm3rshd.mongodb.net/educations", {})
@@ -15,19 +15,25 @@ mongoose.connect("mongodb+srv://root:akki909@cluster0.sm3rshd.mongodb.net/educat
     .catch((error) => {
         console.error('Error connecting to MongoDB:', error.message);
     });
-    
-    app.use(
-        cookie({
-          // Cookie config, take a look at the docs...
-          secret: 'I Love India...',
-          resave: false,
-          saveUninitialized: true,
-          cookie: {
-            secure: true
-          },
-        }),
-      );
-      
+
+app.set('trust proxy', 1) // trust first proxy
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: true }
+}))
+var sess = {
+    secret: 'keyboard cat',
+    cookie: {}
+  }
+  
+  if (app.get('env') === 'production') {
+    app.set('trust proxy', 1) // trust first proxy
+    sess.cookie.secure = true // serve secure cookies
+  }
+  
+app.use(session(sess))
 app.use(cors());
 app.use(express.json())
 
